@@ -1,32 +1,38 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Gerador de Imagens</title>
+<title>Gerador de Imagens SeatMap</title>
+
+https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.jsscript>
 
 <style>
 
 *{
-    box-sizing:border-box;
     margin:0;
     padding:0;
-    font-family:Arial,sans-serif;
+    box-sizing:border-box;
+    font-family:Segoe UI, Arial, sans-serif;
 }
 
 body{
-    background:#f5f5f5;
+    background:#f4f6f9;
     padding:20px;
 }
 
 .container{
-    max-width:1000px;
+    max-width:1200px;
     margin:auto;
+}
+
+.card{
     background:white;
-    padding:20px;
     border-radius:12px;
-    box-shadow:0 4px 12px rgba(0,0,0,.1);
+    padding:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
 }
 
 h1{
@@ -35,117 +41,152 @@ h1{
 
 .grid{
     display:grid;
-    grid-template-columns:1fr 1fr;
     gap:15px;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
 }
 
 label{
     display:block;
     margin-bottom:5px;
-    font-weight:bold;
+    font-weight:600;
 }
 
 input{
     width:100%;
     padding:10px;
     border:1px solid #ccc;
-    border-radius:6px;
-}
-
-button{
-    padding:12px 20px;
-    border:none;
     border-radius:8px;
-    cursor:pointer;
-    background:#0078d4;
-    color:white;
-    font-size:16px;
-}
-
-button:hover{
-    background:#005fa3;
-}
-
-.canvas-area{
-    margin-top:30px;
-    text-align:center;
-}
-
-canvas{
-    border:1px solid #ddd;
-    max-width:100%;
 }
 
 .actions{
     margin-top:20px;
     display:flex;
-    gap:10px;
     flex-wrap:wrap;
+    gap:10px;
 }
 
-@media(max-width:768px){
-
-.grid{
-    grid-template-columns:1fr;
+button{
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+    font-weight:600;
 }
 
+.primary{
+    background:#0078d4;
+}
+
+.success{
+    background:#107c10;
+}
+
+.warning{
+    background:#ff8c00;
+}
+
+.preview{
+    margin-top:30px;
+    text-align:center;
+}
+
+canvas{
+    border:1px solid #ccc;
+    background:white;
+    max-width:100%;
+}
+
+.info{
+    margin-top:15px;
+    color:#666;
+    font-size:14px;
 }
 
 </style>
 </head>
+
 <body>
 
 <div class="container">
 
-<h1>Gerador de Imagens para Seat Map</h1>
+<div class="card">
+
+<h1>Gerador de Imagens SeatMap</h1>
 
 <div class="grid">
 
 <div>
-<label>Texto</label>
-<input id="textInput" value="AO">
+<label>Texto da Imagem</label>
+<input id="texto" value="AO">
+</div>
+
+<div>
+<label>Textos em Lote (;)</label>
+<input id="lote" placeholder="AA;AB;AC;AD">
 </div>
 
 <div>
 <label>Tamanho da Imagem (px)</label>
-<input id="sizeInput" type="number" value="256">
+<input id="tamanho" type="number" value="256">
 </div>
 
 <div>
 <label>Cor de Fundo</label>
-<input id="bgInput" value="FFFFFF">
+<input id="fundo" value="FFFFFF">
 </div>
 
 <div>
 <label>Cor da Letra</label>
-<input id="textColorInput" value="333333">
+<input id="corTexto" value="333333">
 </div>
 
 <div>
 <label>Nome da Imagem</label>
-<input id="fileNameInput" placeholder="imagem">
+<input id="nome" placeholder="AO">
+</div>
+
+<div>
+<label>Teatro</label>
+<input id="teatro" placeholder="Teatro Riachuelo">
+</div>
+
+<div>
+<label>Destino / Setor</label>
+<input id="destino" placeholder="Plateia">
 </div>
 
 <div>
 <label>Upload de Imagem</label>
-<input id="uploadImage" type="file" accept="image/*">
+<input id="upload" type="file" accept="image/*">
 </div>
 
 </div>
 
 <div class="actions">
 
-<button onclick="generateImage()">Gerar Imagem</button>
+<button class="primary" onclick="gerarPreview()">
+Gerar Preview
+</button>
 
-<button onclick="downloadImage()">
-Salvar PNG
+<button class="success" onclick="baixarImagem()">
+Baixar PNG
+</button>
+
+<button class="warning" onclick="gerarLote()">
+Gerar Lote (ZIP)
 </button>
 
 </div>
 
-<div class="canvas-area">
-
+<div class="preview">
 <canvas id="canvas"></canvas>
+
+<div class="info">
+A imagem será sempre quadrada e o texto será ajustado automaticamente ao espaço disponível.
+</div>
+
+</div>
 
 </div>
 
@@ -156,11 +197,9 @@ Salvar PNG
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-let uploadedImage = null;
+let imagemUpload = null;
 
-document
-.getElementById("uploadImage")
-.addEventListener("change", function(e){
+document.getElementById("upload").addEventListener("change", e => {
 
 const file = e.target.files[0];
 
@@ -168,131 +207,166 @@ if(!file) return;
 
 const img = new Image();
 
-img.onload = ()=>{
-
-uploadedImage = img;
-
-generateImage();
-
+img.onload = () => {
+    imagemUpload = img;
+    gerarPreview();
 };
 
 img.src = URL.createObjectURL(file);
 
 });
 
-function generateImage(){
+function desenhar(texto){
 
-const text =
-document
-.getElementById("textInput")
-.value
-.trim();
+const tamanho =
+parseInt(document.getElementById("tamanho").value) || 256;
 
-const size =
-parseInt(
-document
-.getElementById("sizeInput")
-.value
-) || 256;
+canvas.width = tamanho;
+canvas.height = tamanho;
 
-const bgColor =
-"#"+
-document
-.getElementById("bgInput")
-.value
-.replace("#","");
+const fundo =
+"#" +
+document.getElementById("fundo").value.replace("#","");
 
-const textColor =
-"#"+
-document
-.getElementById("textColorInput")
-.value
-.replace("#","");
+const corTexto =
+"#" +
+document.getElementById("corTexto").value.replace("#","");
 
-canvas.width = size;
-canvas.height = size;
+ctx.clearRect(0,0,tamanho,tamanho);
 
-ctx.clearRect(0,0,size,size);
+ctx.fillStyle = fundo;
+ctx.fillRect(0,0,tamanho,tamanho);
 
-ctx.fillStyle = bgColor;
-ctx.fillRect(0,0,size,size);
+if(imagemUpload){
 
-if(uploadedImage){
-
-const shortest =
+const menor =
 Math.min(
-uploadedImage.width,
-uploadedImage.height
+imagemUpload.width,
+imagemUpload.height
 );
 
 const sx =
-(uploadedImage.width-shortest)/2;
+(imagemUpload.width - menor)/2;
 
 const sy =
-(uploadedImage.height-shortest)/2;
+(imagemUpload.height - menor)/2;
 
 ctx.drawImage(
-uploadedImage,
+imagemUpload,
 sx,
 sy,
-shortest,
-shortest,
+menor,
+menor,
 0,
 0,
-size,
-size
+tamanho,
+tamanho
 );
 
 }
 
-if(text){
+if(texto){
 
-let fontSize = size;
+let fonte = tamanho;
 
-ctx.font =
-`bold ${fontSize}px Arial`;
+ctx.font = `bold ${fonte}px Arial`;
 
 while(
-ctx.measureText(text).width >
-(size*0.8)
+ctx.measureText(texto).width >
+tamanho * 0.8
 ){
 
-fontSize -= 2;
+fonte -= 2;
 
-ctx.font =
-`bold ${fontSize}px Arial`;
+ctx.font = `bold ${fonte}px Arial`;
 
 }
 
-ctx.fillStyle = textColor;
-
-ctx.textAlign="center";
-
-ctx.textBaseline="middle";
+ctx.fillStyle = corTexto;
+ctx.textAlign = "center";
+ctx.textBaseline = "middle";
 
 ctx.fillText(
-text,
-size/2,
-size/2
+texto,
+tamanho/2,
+tamanho/2
 );
 
 }
 
 }
 
-function downloadImage(){
+function gerarPreview(){
 
-const fileName =
-document
-.getElementById("fileNameInput")
+const texto = document.getElementById("texto").value;
+
+desenhar(texto);
+
+}
+
+function montarNome(texto){
+
+const teatro =
+document.getElementById("teatro")
 .value
-.trim() || "imagem";
+.trim();
+
+const destino =
+document.getElementById("destino")
+.value
+.trim();
+
+const base =
+document.getElementById("nome")
+.value
+.trim();
+
+let partes = [];
+
+if(teatro) partes.push(teatro);
+
+if(destino) partes.push(destino);
+
+if(base){
+
+partes.push(base);
+
+}else{
+
+partes.push(texto);
+
+}
+
+return partes
+.join("_")
+.replaceAll(" ","_");
+
+}
+
+function baixarImagem(){
+
+const texto =
+document.getElementById("texto")
+.value
+.trim();
+
+if(!texto){
+
+alert("Informe um texto.");
+
+return;
+
+}
+
+gerarPreview();
+
+let nome = montarNome(texto);
 
 const link =
 document.createElement("a");
 
 link.download =
-fileName + ".png";
+nome + ".png";
 
 link.href =
 canvas.toDataURL("image/png");
@@ -301,9 +375,70 @@ link.click();
 
 }
 
-generateImage();
+async function gerarLote(){
+
+const lote =
+document.getElementById("lote")
+.value
+.trim();
+
+if(!lote){
+
+alert("Informe os textos separados por ;");
+
+return;
+
+}
+
+const zip = new JSZip();
+
+const itens =
+lote
+.split(";")
+.map(x => x.trim())
+.filter(x => x !== "");
+
+for(const item of itens){
+
+desenhar(item);
+
+const base64 =
+canvas
+.toDataURL("image/png")
+.split(",")[1];
+
+zip.file(
+montarNome(item) + ".png",
+base64,
+{
+base64:true
+}
+);
+
+}
+
+const arquivo =
+await zip.generateAsync({
+type:"blob"
+});
+
+const link =
+document.createElement("a");
+
+link.href =
+URL.createObjectURL(arquivo);
+
+link.download =
+"seatmaps.zip";
+
+link.click();
+
+}
+
+gerarPreview();
 
 </script>
 
 </body>
+
 </html>
