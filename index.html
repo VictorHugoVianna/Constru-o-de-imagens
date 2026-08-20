@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Gerador de Imagens SeatMap</title>
-
-https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.jsscript>
 
 <style>
 
@@ -19,7 +16,7 @@ https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.jsscript>
 }
 
 body{
-    background:#f4f6f9;
+    background:#f3f4f6;
     padding:20px;
 }
 
@@ -29,10 +26,10 @@ body{
 }
 
 .card{
-    background:white;
+    background:#fff;
     border-radius:12px;
     padding:20px;
-    box-shadow:0 4px 15px rgba(0,0,0,.08);
+    box-shadow:0 4px 12px rgba(0,0,0,.1);
 }
 
 h1{
@@ -41,13 +38,13 @@ h1{
 
 .grid{
     display:grid;
-    gap:15px;
     grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:15px;
 }
 
 label{
     display:block;
-    margin-bottom:5px;
+    margin-bottom:6px;
     font-weight:600;
 }
 
@@ -74,38 +71,54 @@ button{
     font-weight:600;
 }
 
-.primary{
+.btn-primary{
     background:#0078d4;
 }
 
-.success{
+.btn-success{
     background:#107c10;
 }
 
-.warning{
+.btn-warning{
     background:#ff8c00;
 }
 
+.btn-danger{
+    background:#d13438;
+}
+
 .preview{
-    margin-top:30px;
     text-align:center;
+    margin-top:25px;
 }
 
 canvas{
     border:1px solid #ccc;
-    background:white;
     max-width:100%;
+    background:white;
 }
 
 .info{
-    margin-top:15px;
+    margin-top:12px;
     color:#666;
     font-size:14px;
 }
 
-</style>
-</head>
+@media(max-width:768px){
 
+    .actions{
+        flex-direction:column;
+    }
+
+    button{
+        width:100%;
+    }
+
+}
+
+</style>
+
+</head>
 <body>
 
 <div class="container">
@@ -122,7 +135,7 @@ canvas{
 </div>
 
 <div>
-<label>Textos em Lote (;)</label>
+<label>Geração em Lote (;)</label>
 <input id="lote" placeholder="AA;AB;AC;AD">
 </div>
 
@@ -132,18 +145,18 @@ canvas{
 </div>
 
 <div>
-<label>Cor de Fundo</label>
-<input id="fundo" value="FFFFFF">
+<label>Cor de Fundo (HEX)</label>
+<input id="corFundo" value="FFFFFF">
 </div>
 
 <div>
-<label>Cor da Letra</label>
+<label>Cor da Letra (HEX)</label>
 <input id="corTexto" value="333333">
 </div>
 
 <div>
-<label>Nome da Imagem</label>
-<input id="nome" placeholder="AO">
+<label>Nome Base da Imagem</label>
+<input id="nomeImagem" placeholder="Opcional">
 </div>
 
 <div>
@@ -158,32 +171,37 @@ canvas{
 
 <div>
 <label>Upload de Imagem</label>
-<input id="upload" type="file" accept="image/*">
+<input id="uploadImagem" type="file" accept="image/*">
 </div>
 
 </div>
 
 <div class="actions">
 
-<button class="primary" onclick="gerarPreview()">
+<button class="btn-primary" onclick="gerarPreview()">
 Gerar Preview
 </button>
 
-<button class="success" onclick="baixarImagem()">
+<button class="btn-success" onclick="baixarImagem()">
 Baixar PNG
 </button>
 
-<button class="warning" onclick="gerarLote()">
-Gerar Lote (ZIP)
+<button class="btn-warning" onclick="gerarLote()">
+Gerar Lote
+</button>
+
+<button class="btn-danger" onclick="limparTudo()">
+Limpar
 </button>
 
 </div>
 
 <div class="preview">
+
 <canvas id="canvas"></canvas>
 
 <div class="info">
-A imagem será sempre quadrada e o texto será ajustado automaticamente ao espaço disponível.
+A imagem será sempre quadrada e o texto será ajustado automaticamente.
 </div>
 
 </div>
@@ -194,244 +212,260 @@ A imagem será sempre quadrada e o texto será ajustado automaticamente ao espa�
 
 <script>
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 
-let imagemUpload = null;
+let imagemCarregada = null;
 
-document.getElementById("upload").addEventListener("change", e => {
+document
+.getElementById('uploadImagem')
+.addEventListener('change', function(e){
 
-const file = e.target.files[0];
+    const arquivo = e.target.files[0];
 
-if(!file) return;
+    if(!arquivo) return;
 
-const img = new Image();
+    const img = new Image();
 
-img.onload = () => {
-    imagemUpload = img;
-    gerarPreview();
-};
+    img.onload = function(){
 
-img.src = URL.createObjectURL(file);
+        imagemCarregada = img;
+        gerarPreview();
+
+    };
+
+    img.src = URL.createObjectURL(arquivo);
 
 });
 
-function desenhar(texto){
+function obterCor(id){
 
-const tamanho =
-parseInt(document.getElementById("tamanho").value) || 256;
+    let valor =
+    document
+    .getElementById(id)
+    .value
+    .trim()
+    .replace('#','');
 
-canvas.width = tamanho;
-canvas.height = tamanho;
-
-const fundo =
-"#" +
-document.getElementById("fundo").value.replace("#","");
-
-const corTexto =
-"#" +
-document.getElementById("corTexto").value.replace("#","");
-
-ctx.clearRect(0,0,tamanho,tamanho);
-
-ctx.fillStyle = fundo;
-ctx.fillRect(0,0,tamanho,tamanho);
-
-if(imagemUpload){
-
-const menor =
-Math.min(
-imagemUpload.width,
-imagemUpload.height
-);
-
-const sx =
-(imagemUpload.width - menor)/2;
-
-const sy =
-(imagemUpload.height - menor)/2;
-
-ctx.drawImage(
-imagemUpload,
-sx,
-sy,
-menor,
-menor,
-0,
-0,
-tamanho,
-tamanho
-);
+    return '#' + valor;
 
 }
 
-if(texto){
+function desenharImagem(texto){
 
-let fonte = tamanho;
+    const tamanho =
+    parseInt(
+    document.getElementById('tamanho').value
+    ) || 256;
 
-ctx.font = `bold ${fonte}px Arial`;
+    canvas.width = tamanho;
+    canvas.height = tamanho;
 
-while(
-ctx.measureText(texto).width >
-tamanho * 0.8
-){
+    const corFundo = obterCor('corFundo');
+    const corTexto = obterCor('corTexto');
 
-fonte -= 2;
+    ctx.clearRect(0,0,tamanho,tamanho);
 
-ctx.font = `bold ${fonte}px Arial`;
+    ctx.fillStyle = corFundo;
+    ctx.fillRect(0,0,tamanho,tamanho);
 
-}
+    if(imagemCarregada){
 
-ctx.fillStyle = corTexto;
-ctx.textAlign = "center";
-ctx.textBaseline = "middle";
+        const menorLado =
+        Math.min(
+            imagemCarregada.width,
+            imagemCarregada.height
+        );
 
-ctx.fillText(
-texto,
-tamanho/2,
-tamanho/2
-);
+        const sx =
+        (imagemCarregada.width - menorLado) / 2;
 
-}
+        const sy =
+        (imagemCarregada.height - menorLado) / 2;
+
+        ctx.drawImage(
+            imagemCarregada,
+            sx,
+            sy,
+            menorLado,
+            menorLado,
+            0,
+            0,
+            tamanho,
+            tamanho
+        );
+
+    }
+
+    if(texto){
+
+        let fonte = tamanho;
+
+        do{
+
+            fonte -= 2;
+
+            ctx.font =
+            `bold ${fonte}px Arial`;
+
+        }
+        while(
+            ctx.measureText(texto).width >
+            tamanho * 0.8 &&
+            fonte > 10
+        );
+
+        ctx.fillStyle = corTexto;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(
+            texto,
+            tamanho/2,
+            tamanho/2
+        );
+
+    }
 
 }
 
 function gerarPreview(){
 
-const texto = document.getElementById("texto").value;
+    const texto =
+    document
+    .getElementById('texto')
+    .value
+    .trim();
 
-desenhar(texto);
+    desenharImagem(texto);
 
 }
 
 function montarNome(texto){
 
-const teatro =
-document.getElementById("teatro")
-.value
-.trim();
+    const teatro =
+    document.getElementById('teatro').value.trim();
 
-const destino =
-document.getElementById("destino")
-.value
-.trim();
+    const destino =
+    document.getElementById('destino').value.trim();
 
-const base =
-document.getElementById("nome")
-.value
-.trim();
+    const nomeBase =
+    document.getElementById('nomeImagem').value.trim();
 
-let partes = [];
+    let partes = [];
 
-if(teatro) partes.push(teatro);
+    if(teatro) partes.push(teatro);
 
-if(destino) partes.push(destino);
+    if(destino) partes.push(destino);
 
-if(base){
+    if(nomeBase){
 
-partes.push(base);
+        partes.push(nomeBase);
 
-}else{
+    }else{
 
-partes.push(texto);
+        partes.push(texto);
 
-}
+    }
 
-return partes
-.join("_")
-.replaceAll(" ","_");
+    return partes
+    .join('_')
+    .replace(/\s+/g,'_');
 
 }
 
 function baixarImagem(){
 
-const texto =
-document.getElementById("texto")
-.value
-.trim();
+    const texto =
+    document.getElementById('texto').value.trim();
 
-if(!texto){
+    if(!texto){
 
-alert("Informe um texto.");
+        alert("Informe um texto.");
 
-return;
+        return;
+    }
 
-}
+    gerarPreview();
 
-gerarPreview();
+    const link =
+    document.createElement('a');
 
-let nome = montarNome(texto);
+    link.download =
+    montarNome(texto) + ".png";
 
-const link =
-document.createElement("a");
+    link.href =
+    canvas.toDataURL('image/png');
 
-link.download =
-nome + ".png";
-
-link.href =
-canvas.toDataURL("image/png");
-
-link.click();
+    link.click();
 
 }
 
-async function gerarLote(){
+function gerarLote(){
 
-const lote =
-document.getElementById("lote")
-.value
-.trim();
+    const lote =
+    document.getElementById('lote')
+    .value
+    .trim();
 
-if(!lote){
+    if(!lote){
 
-alert("Informe os textos separados por ;");
+        alert("Informe os textos separados por ;");
 
-return;
+        return;
+    }
+
+    const itens =
+    lote
+    .split(';')
+    .map(x => x.trim())
+    .filter(x => x !== '');
+
+    let atraso = 0;
+
+    itens.forEach(item => {
+
+        setTimeout(() => {
+
+            desenharImagem(item);
+
+            const link =
+            document.createElement('a');
+
+            link.download =
+            montarNome(item) + '.png';
+
+            link.href =
+            canvas.toDataURL('image/png');
+
+            link.click();
+
+        }, atraso);
+
+        atraso += 300;
+
+    });
 
 }
 
-const zip = new JSZip();
+function limparTudo(){
 
-const itens =
-lote
-.split(";")
-.map(x => x.trim())
-.filter(x => x !== "");
+    document.getElementById('texto').value = '';
+    document.getElementById('lote').value = '';
+    document.getElementById('nomeImagem').value = '';
+    document.getElementById('teatro').value = '';
+    document.getElementById('destino').value = '';
 
-for(const item of itens){
+    imagemCarregada = null;
 
-desenhar(item);
+    document.getElementById('uploadImagem').value = '';
 
-const base64 =
-canvas
-.toDataURL("image/png")
-.split(",")[1];
-
-zip.file(
-montarNome(item) + ".png",
-base64,
-{
-base64:true
-}
-);
-
-}
-
-const arquivo =
-await zip.generateAsync({
-type:"blob"
-});
-
-const link =
-document.createElement("a");
-
-link.href =
-URL.createObjectURL(arquivo);
-
-link.download =
-"seatmaps.zip";
-
-link.click();
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
 }
 
@@ -440,5 +474,4 @@ gerarPreview();
 </script>
 
 </body>
-
 </html>
