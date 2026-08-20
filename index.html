@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,116 +10,133 @@
 <style>
 
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Segoe UI, Arial, sans-serif;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,Arial,sans-serif;
 }
 
 body{
-    background:#f3f4f6;
-    padding:20px;
+background:#f4f6f9;
+padding:20px;
+color:#333;
 }
 
 .container{
-    max-width:1200px;
-    margin:auto;
+max-width:1200px;
+margin:auto;
 }
 
 .card{
-    background:#fff;
-    border-radius:12px;
-    padding:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,.1);
+background:#fff;
+border-radius:12px;
+padding:20px;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+margin-bottom:20px;
 }
 
 h1{
-    margin-bottom:20px;
+margin-bottom:20px;
+}
+
+h2{
+margin-bottom:15px;
 }
 
 .grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:15px;
+display:grid;
+gap:15px;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
 }
 
 label{
-    display:block;
-    margin-bottom:6px;
-    font-weight:600;
+display:block;
+margin-bottom:5px;
+font-weight:600;
 }
 
 input{
-    width:100%;
-    padding:10px;
-    border:1px solid #ccc;
-    border-radius:8px;
+width:100%;
+padding:10px;
+border:1px solid #ccc;
+border-radius:8px;
 }
 
 .actions{
-    margin-top:20px;
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
+margin-top:20px;
+display:flex;
+flex-wrap:wrap;
+gap:10px;
 }
 
 button{
-    border:none;
-    padding:12px 20px;
-    border-radius:8px;
-    cursor:pointer;
-    color:white;
-    font-weight:600;
+border:none;
+padding:12px 18px;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+color:white;
 }
 
-.btn-primary{
-    background:#0078d4;
+.primary{
+background:#0078d4;
 }
 
-.btn-success{
-    background:#107c10;
+.success{
+background:#107c10;
 }
 
-.btn-warning{
-    background:#ff8c00;
+.warning{
+background:#ff8c00;
 }
 
-.btn-danger{
-    background:#d13438;
+.danger{
+background:#d13438;
 }
 
 .preview{
-    text-align:center;
-    margin-top:25px;
+text-align:center;
+margin-top:20px;
 }
 
 canvas{
-    border:1px solid #ccc;
-    max-width:100%;
-    background:white;
+border:1px solid #ccc;
+background:white;
+max-width:100%;
 }
 
 .info{
-    margin-top:12px;
-    color:#666;
-    font-size:14px;
+margin-top:10px;
+font-size:14px;
+color:#666;
+}
+
+ol{
+padding-left:20px;
+line-height:1.8;
+}
+
+code{
+background:#eee;
+padding:2px 6px;
+border-radius:4px;
 }
 
 @media(max-width:768px){
 
-    .actions{
-        flex-direction:column;
-    }
+.actions{
+flex-direction:column;
+}
 
-    button{
-        width:100%;
-    }
+button{
+width:100%;
+}
 
 }
 
 </style>
-
 </head>
+
 <body>
 
 <div class="container">
@@ -130,12 +148,12 @@ canvas{
 <div class="grid">
 
 <div>
-<label>Texto da Imagem</label>
+<label>Texto da Imagem Única</label>
 <input id="texto" value="AO">
 </div>
 
 <div>
-<label>Geração em Lote (;)</label>
+<label>Texto da Imagem - Geração em Lote (;)</label>
 <input id="lote" placeholder="AA;AB;AC;AD">
 </div>
 
@@ -156,7 +174,7 @@ canvas{
 
 <div>
 <label>Nome Base da Imagem</label>
-<input id="nomeImagem" placeholder="Opcional">
+<input id="nomeImagem" placeholder="Entrada">
 </div>
 
 <div>
@@ -178,19 +196,19 @@ canvas{
 
 <div class="actions">
 
-<button class="btn-primary" onclick="gerarPreview()">
+<button class="primary" onclick="gerarPreview()">
 Gerar Preview
 </button>
 
-<button class="btn-success" onclick="baixarImagem()">
+<button class="success" onclick="baixarImagem()">
 Baixar PNG
 </button>
 
-<button class="btn-warning" onclick="gerarLote()">
+<button class="warning" onclick="gerarLote()">
 Gerar Lote
 </button>
 
-<button class="btn-danger" onclick="limparTudo()">
+<button class="danger" onclick="limparTudo()">
 Limpar
 </button>
 
@@ -201,10 +219,84 @@ Limpar
 <canvas id="canvas"></canvas>
 
 <div class="info">
-A imagem será sempre quadrada e o texto será ajustado automaticamente.
+A imagem será sempre quadrada e o tamanho do texto será ajustado automaticamente.
 </div>
 
 </div>
+
+</div>
+
+<div class="card">
+
+<h2>Como Utilizar</h2>
+
+<ol>
+
+<li>
+Utilize o campo <strong>Texto da Imagem Única</strong> para gerar apenas uma imagem.
+</li>
+
+<li>
+Utilize o campo <strong>Texto da Imagem - Geração em Lote (;)</strong> para gerar várias imagens.
+</li>
+
+<li>
+Separe os textos utilizando ponto e vírgula (;).
+</li>
+
+<li>
+Exemplo:
+<br><br>
+<code>AA;AB;AC;AD;AE</code>
+</li>
+
+<li>
+Informe o tamanho desejado da imagem.
+</li>
+
+<li>
+Informe a cor de fundo em hexadecimal.
+</li>
+
+<li>
+Informe a cor da letra em hexadecimal.
+</li>
+
+<li>
+Caso deseje, informe um Nome Base da Imagem.
+</li>
+
+<li>
+Opcionalmente informe Teatro e Destino.
+</li>
+
+<li>
+Faça upload de uma imagem caso queira utilizá-la como base.
+</li>
+
+<li>
+Clique em Gerar Preview para visualizar o resultado.
+</li>
+
+<li>
+Clique em Baixar PNG para salvar uma única imagem.
+</li>
+
+<li>
+Clique em Gerar Lote para gerar várias imagens.
+</li>
+
+</ol>
+
+<br>
+
+<strong>Exemplo de nome gerado:</strong>
+
+<br><br>
+
+<code>
+Teatro_Riachuelo_Plateia_Entrada_AO.png
+</code>
 
 </div>
 
@@ -212,260 +304,276 @@ A imagem será sempre quadrada e o texto será ajustado automaticamente.
 
 <script>
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
 let imagemCarregada = null;
 
 document
-.getElementById('uploadImagem')
-.addEventListener('change', function(e){
+.getElementById("uploadImagem")
+.addEventListener("change", function(event){
 
-    const arquivo = e.target.files[0];
+const arquivo = event.target.files[0];
 
-    if(!arquivo) return;
+if(!arquivo) return;
 
-    const img = new Image();
+const img = new Image();
 
-    img.onload = function(){
+img.onload = function(){
 
-        imagemCarregada = img;
-        gerarPreview();
+imagemCarregada = img;
+gerarPreview();
 
-    };
+};
 
-    img.src = URL.createObjectURL(arquivo);
+img.src = URL.createObjectURL(arquivo);
 
 });
 
-function obterCor(id){
+function corHex(id){
 
-    let valor =
-    document
-    .getElementById(id)
-    .value
-    .trim()
-    .replace('#','');
+let valor =
+document
+.getElementById(id)
+.value
+.trim()
+.replace("#","");
 
-    return '#' + valor;
+return "#" + valor;
 
 }
 
 function desenharImagem(texto){
 
-    const tamanho =
-    parseInt(
-    document.getElementById('tamanho').value
-    ) || 256;
+const tamanho =
+parseInt(
+document.getElementById("tamanho").value
+) || 256;
 
-    canvas.width = tamanho;
-    canvas.height = tamanho;
+canvas.width = tamanho;
+canvas.height = tamanho;
 
-    const corFundo = obterCor('corFundo');
-    const corTexto = obterCor('corTexto');
+ctx.clearRect(0,0,tamanho,tamanho);
 
-    ctx.clearRect(0,0,tamanho,tamanho);
+ctx.fillStyle = corHex("corFundo");
+ctx.fillRect(0,0,tamanho,tamanho);
 
-    ctx.fillStyle = corFundo;
-    ctx.fillRect(0,0,tamanho,tamanho);
+if(imagemCarregada){
 
-    if(imagemCarregada){
+const menorLado =
+Math.min(
+imagemCarregada.width,
+imagemCarregada.height
+);
 
-        const menorLado =
-        Math.min(
-            imagemCarregada.width,
-            imagemCarregada.height
-        );
+const sx =
+(imagemCarregada.width-menorLado)/2;
 
-        const sx =
-        (imagemCarregada.width - menorLado) / 2;
+const sy =
+(imagemCarregada.height-menorLado)/2;
 
-        const sy =
-        (imagemCarregada.height - menorLado) / 2;
+ctx.drawImage(
+imagemCarregada,
+sx,
+sy,
+menorLado,
+menorLado,
+0,
+0,
+tamanho,
+tamanho
+);
 
-        ctx.drawImage(
-            imagemCarregada,
-            sx,
-            sy,
-            menorLado,
-            menorLado,
-            0,
-            0,
-            tamanho,
-            tamanho
-        );
+}
 
-    }
+if(texto){
 
-    if(texto){
+let tamanhoFonte = tamanho;
 
-        let fonte = tamanho;
+do{
 
-        do{
+tamanhoFonte -= 2;
 
-            fonte -= 2;
+ctx.font =
+`bold ${tamanhoFonte}px Arial`;
 
-            ctx.font =
-            `bold ${fonte}px Arial`;
+}
+while(
+ctx.measureText(texto).width >
+tamanho * 0.8 &&
+tamanhoFonte > 10
+);
 
-        }
-        while(
-            ctx.measureText(texto).width >
-            tamanho * 0.8 &&
-            fonte > 10
-        );
+ctx.fillStyle =
+corHex("corTexto");
 
-        ctx.fillStyle = corTexto;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+ctx.textAlign = "center";
+ctx.textBaseline = "middle";
 
-        ctx.fillText(
-            texto,
-            tamanho/2,
-            tamanho/2
-        );
+ctx.fillText(
+texto,
+tamanho/2,
+tamanho/2
+);
 
-    }
+}
 
 }
 
 function gerarPreview(){
 
-    const texto =
-    document
-    .getElementById('texto')
-    .value
-    .trim();
+const texto =
+document
+.getElementById("texto")
+.value
+.trim();
 
-    desenharImagem(texto);
+desenharImagem(texto);
 
 }
 
 function montarNome(texto){
 
-    const teatro =
-    document.getElementById('teatro').value.trim();
+const teatro =
+document.getElementById("teatro")
+.value
+.trim();
 
-    const destino =
-    document.getElementById('destino').value.trim();
+const destino =
+document.getElementById("destino")
+.value
+.trim();
 
-    const nomeBase =
-    document.getElementById('nomeImagem').value.trim();
+const nomeBase =
+document.getElementById("nomeImagem")
+.value
+.trim();
 
-    let partes = [];
+let partes = [];
 
-    if(teatro) partes.push(teatro);
+if(teatro){
+partes.push(teatro);
+}
 
-    if(destino) partes.push(destino);
+if(destino){
+partes.push(destino);
+}
 
-    if(nomeBase){
+if(nomeBase){
+partes.push(nomeBase);
+}
 
-        partes.push(nomeBase);
+if(texto){
+partes.push(texto);
+}
 
-    }else{
-
-        partes.push(texto);
-
-    }
-
-    return partes
-    .join('_')
-    .replace(/\s+/g,'_');
+return partes
+.join("_")
+.replace(/\s+/g,"_");
 
 }
 
 function baixarImagem(){
 
-    const texto =
-    document.getElementById('texto').value.trim();
+const texto =
+document
+.getElementById("texto")
+.value
+.trim();
 
-    if(!texto){
+if(!texto){
 
-        alert("Informe um texto.");
+alert("Informe um texto.");
 
-        return;
-    }
+return;
 
-    gerarPreview();
+}
 
-    const link =
-    document.createElement('a');
+desenharImagem(texto);
 
-    link.download =
-    montarNome(texto) + ".png";
+const link =
+document.createElement("a");
 
-    link.href =
-    canvas.toDataURL('image/png');
+link.download =
+montarNome(texto) + ".png";
 
-    link.click();
+link.href =
+canvas.toDataURL("image/png");
+
+link.click();
 
 }
 
 function gerarLote(){
 
-    const lote =
-    document.getElementById('lote')
-    .value
-    .trim();
+const lote =
+document
+.getElementById("lote")
+.value
+.trim();
 
-    if(!lote){
+if(!lote){
 
-        alert("Informe os textos separados por ;");
+alert("Informe os textos do lote.");
 
-        return;
-    }
+return;
 
-    const itens =
-    lote
-    .split(';')
-    .map(x => x.trim())
-    .filter(x => x !== '');
+}
 
-    let atraso = 0;
+const itens =
+lote
+.split(";")
+.map(x => x.trim())
+.filter(x => x !== "");
 
-    itens.forEach(item => {
+let atraso = 0;
 
-        setTimeout(() => {
+itens.forEach(item => {
 
-            desenharImagem(item);
+setTimeout(() => {
 
-            const link =
-            document.createElement('a');
+desenharImagem(item);
 
-            link.download =
-            montarNome(item) + '.png';
+const link =
+document.createElement("a");
 
-            link.href =
-            canvas.toDataURL('image/png');
+link.download =
+montarNome(item) + ".png";
 
-            link.click();
+link.href =
+canvas.toDataURL("image/png");
 
-        }, atraso);
+link.click();
 
-        atraso += 300;
+}, atraso);
 
-    });
+atraso += 400;
+
+});
 
 }
 
 function limparTudo(){
 
-    document.getElementById('texto').value = '';
-    document.getElementById('lote').value = '';
-    document.getElementById('nomeImagem').value = '';
-    document.getElementById('teatro').value = '';
-    document.getElementById('destino').value = '';
+document.getElementById("texto").value = "";
+document.getElementById("lote").value = "";
+document.getElementById("nomeImagem").value = "";
+document.getElementById("teatro").value = "";
+document.getElementById("destino").value = "";
 
-    imagemCarregada = null;
+document.getElementById("corFundo").value = "FFFFFF";
+document.getElementById("corTexto").value = "333333";
 
-    document.getElementById('uploadImagem').value = '';
+imagemCarregada = null;
 
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
+document.getElementById("uploadImagem").value = "";
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
 
 }
 
